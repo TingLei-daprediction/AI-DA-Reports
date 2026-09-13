@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aardvark Weather Development Review and OMD AI-DA Role</title>
+<style>
+  :root{
+    --bg:#f7f9fc;
+    --paper:#ffffff;
+    --text:#1f2937;
+    --muted:#5f6b7a;
+    --line:#d9e0e8;
+    --accent:#174ea6;
+    --accent2:#0f766e;
+    --soft:#eef4ff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.62;
+  }
+  .wrap{
+    max-width:980px;
+    margin:0 auto;
+    padding:44px 22px 72px;
+  }
+  .hero{
+    background:linear-gradient(135deg,#102a43,#174ea6);
+    color:white;
+    border-radius:18px;
+    padding:34px 38px;
+    box-shadow:0 14px 38px rgba(16,42,67,.14);
+    margin-bottom:28px;
+  }
+  .hero h1{margin:0 0 12px;font-size:2.15rem;line-height:1.15}
+  .hero p{margin:0;color:#e7eef9;font-size:1.02rem}
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:28px 30px;
+    margin:18px 0;
+    box-shadow:0 7px 20px rgba(30,41,59,.05);
+  }
+  h2{color:#123c72;margin-top:0;font-size:1.45rem}
+  h3{color:#174ea6;margin-top:26px}
+  h4{margin-bottom:6px}
+  .eq{
+    font-family:"Courier New",monospace;
+    background:#f6f8fb;
+    border-left:4px solid var(--accent);
+    padding:14px 16px;
+    margin:16px 0;
+    overflow:auto;
+    white-space:pre-wrap;
+  }
+  .callout{
+    background:var(--soft);
+    border-left:5px solid var(--accent);
+    padding:18px 20px;
+    border-radius:10px;
+    margin:20px 0;
+  }
+  .role{
+    background:#eefbf8;
+    border-left:5px solid var(--accent2);
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:18px 0;
+    font-size:.95rem;
+  }
+  th,td{
+    border:1px solid var(--line);
+    padding:10px 12px;
+    vertical-align:top;
+  }
+  th{background:#f3f6fa;text-align:left}
+  a{color:#174ea6}
+  .small{font-size:.9rem;color:var(--muted)}
+  ul{padding-left:1.25rem}
+  footer{
+    color:var(--muted);
+    font-size:.88rem;
+    text-align:center;
+    margin-top:34px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>Review of Current Aardvark Weather Development and the Role of Our AI-DA Work</h1>
+    <p>A team-facing review of public Aardvark development, downstream adaptations, and the emerging role of operationally oriented observation-to-analysis work.</p>
+  </section>
+
+  <section class="card">
+    <h2>1. Purpose</h2>
+    <p>Aardvark Weather introduced an end-to-end AI weather-prediction architecture that operates directly from heterogeneous observations rather than requiring a conventional gridded analysis as its initial input.</p>
+    <div class="eq">heterogeneous observations
+→ observation encoder
+→ gridded atmospheric representation
+→ forecast processor
+→ forecast products</div>
+    <p>This is particularly interesting from a data-assimilation perspective because the observation encoder performs a task closely related to state estimation: it maps irregular, multimodal observations into a spatially complete atmospheric representation.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Original Aardvark Development</h2>
+    <p>The principal Aardvark development remains centered around the University of Cambridge and collaborators associated with the Alan Turing Institute.</p>
+    <p>The public repository provides the model architecture, pretrained weights, sample observations, training scripts, and a machine-learning-ready observational dataset. The authors also note that several training procedures depend on internal data-loading and computing infrastructure and therefore are not directly executable from the public release.</p>
+    <p>Public project materials indicate continued development toward a more operational system, including real-time observational data ingestion, higher spatial resolution, additional vertical levels, extended observational archives, and additional observing instruments.</p>
+    <p><a href="https://github.com/anna-allen/aardvark-weather-public">Aardvark public repository</a></p>
+  </section>
+
+  <section class="card">
+    <h2>3. Publicly Visible Aardvark Adoption and Development</h2>
+
+    <h3>3.1 Cambridge / Alan Turing Institute</h3>
+    <p>This remains the core Aardvark development path, with an emphasis on increasingly complete observation-to-forecast systems.</p>
+    <div class="eq">observations → AI atmospheric state → AI forecast</div>
+
+    <h3>3.2 Project Cumulus</h3>
+    <p>Project Cumulus, involving the Alan Turing Institute, Cambridge, Leeds, and African university and meteorological-service partners, represents a regional and operational adaptation path. The project draws on technologies including Aardvark and Aurora for locally tuned AI forecasting systems.</p>
+    <div class="eq">general AI forecasting architecture
+→ regional adaptation
+→ operational forecasting service</div>
+
+    <h3>3.3 Fraunhofer HHI</h3>
+    <p>A particularly relevant recent extension modifies Aardvark to include explicit uncertainty in the observation encoder and forecast processor. Learned input-dependent stochasticity is added to the encoder, while Monte-Carlo dropout is used in the processor.</p>
+    <div class="eq">y → E(y, εobs) → x → P(x, εmodel) → xf</div>
+    <p>This is especially interesting for DA because it treats the observation-to-state mapping itself as an uncertain inference problem rather than only as deterministic preprocessing.</p>
+    <p><a href="https://arxiv.org/abs/2608.30795">Uncertainty-Aware End-to-End AI Weather Forecasting</a></p>
+
+    <h3>3.4 OneScience</h3>
+    <p>OneScience has produced an independent engineering adaptation with a more directly executable training and inference workflow, including validation, checkpointing, restart, module-specific training, and full end-to-end fine-tuning.</p>
+    <p><a href="https://huggingface.co/OneScience-Group/Aardvark-Weather">OneScience Aardvark adaptation</a></p>
+
+    <h3>3.5 Public GitHub forks</h3>
+    <p>The public Aardvark repository has a number of forks, but most publicly visible forks do not yet show evidence of substantial independent development. Many appear to be local experimentation, reproduction, or evaluation snapshots rather than new scientific branches.</p>
+  </section>
+
+  <section class="card">
+    <h2>4. Emerging Development Landscape</h2>
+    <table>
+      <tr><th>Direction</th><th>Representative effort</th><th>Main emphasis</th></tr>
+      <tr><td>End-to-end forecasting</td><td>Cambridge / Alan Turing Institute</td><td>Observation-to-state-to-forecast AI system</td></tr>
+      <tr><td>Regional / operational adaptation</td><td>Project Cumulus</td><td>Locally tuned forecasting in operational settings</td></tr>
+      <tr><td>Probabilistic Aardvark</td><td>Fraunhofer HHI</td><td>Observation and forecast-model uncertainty</td></tr>
+      <tr><td>Engineering / reproducibility</td><td>OneScience</td><td>Executable training, inference, and workflow infrastructure</td></tr>
+      <tr><td>Operational AI-DA / analysis</td><td>Our current work</td><td>Observation-to-analysis adaptation and DA-oriented evaluation</td></tr>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>5. Role of Our Work</h2>
+    <div class="callout role">
+      <strong>Our current work occupies a distinct position:</strong> we are investigating Aardvark primarily from the perspective of data assimilation and atmospheric analysis, rather than treating reproduction of the complete global Aardvark forecasting system as the primary objective.
+    </div>
+    <p>Our central question is:</p>
+    <div class="eq">Can Aardvark-derived observation-to-state machinery
+be adapted and evaluated as a practical analysis capability
+within an operationally relevant DA setting?</div>
+
+    <p>Our near-term formulation is therefore closer to:</p>
+    <div class="eq">observations + background information → AI analysis</div>
+
+    <h3>5.1 Current regional observation-to-analysis work</h3>
+    <p>Our initial application is an AI-RTMA-oriented regional surface-analysis problem over Oklahoma using Aardvark-derived encoder ideas as the starting point.</p>
+    <p>Current development includes:</p>
+    <ul>
+      <li>regional-grid support through configuration;</li>
+      <li>an explicit observation-to-analysis mode;</li>
+      <li>surface-focused observational inputs;</li>
+      <li>regional surface targets;</li>
+      <li>deterministic observation/background/target alignment;</li>
+      <li>daily background anchoring with hourly observation-driven corrections;</li>
+      <li>station-normalization strategies;</li>
+      <li>training and validation manifests;</li>
+      <li>multi-month training configurations;</li>
+      <li>encoder inference and diagnostics; and</li>
+      <li>verification against analysis, background, and observations.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>6. Distinction from Other Aardvark Efforts</h2>
+
+    <h3>6.1 The analysis itself is a scientific product</h3>
+    <p>In the original Aardvark system, the encoder-generated atmospheric state primarily supports downstream forecasting. In our application, the analysis itself must be scientifically evaluated.</p>
+    <div class="eq">Does the inferred state fit observations appropriately?
+Does it improve upon the background?
+Does it behave sensibly away from observations?
+Does it preserve realistic spatial structure?
+Is it suitable for subsequent forecasting?</div>
+
+    <h3>6.2 Background information remains important</h3>
+    <p>Traditional DA combines observations and prior information:</p>
+    <div class="eq">xa = F(xb, y)</div>
+    <p>where xb is the background state and y represents observations. Our work creates a pathway to examine learned observation processing that complements, rather than necessarily replaces, forecast-background information.</p>
+
+    <h3>6.3 DA provides a strong evaluation framework</h3>
+    <p>Because the work is embedded in a DA environment, learned methods can be evaluated with familiar diagnostics such as innovations, residuals, increments, background-vs-analysis error, withheld-observation verification, observation-density dependence, spatial influence, physical consistency, and forecast impact.</p>
+  </section>
+
+  <section class="card">
+    <h2>7. Relationship to the Fraunhofer Work</h2>
+    <p>The recent Fraunhofer work makes this direction particularly timely. Their study adds explicit uncertainty to the observation encoder. Our work asks the complementary question:</p>
+    <div class="eq">What is the quality and behavior of the state estimated by that type of encoder?</div>
+    <p>The two directions could eventually meet naturally in a probabilistic formulation such as:</p>
+    <div class="eq">p(x | y, xb)</div>
+    <p>rather than only a deterministic mapping:</p>
+    <div class="eq">x = E(y, xb)</div>
+    <p>This provides a direct conceptual bridge from learned observation encoders toward probabilistic data assimilation.</p>
+  </section>
+
+  <section class="card">
+    <h2>8. Potential Longer-Term Role for OMD</h2>
+    <p>The most valuable role for this work may not be to build another standalone AI weather model. Instead, it can evaluate where learned observation-to-state methods provide practical value inside the existing operational DA/NWP ecosystem.</p>
+    <div class="eq">Aardvark reproduction
+↓
+regional observation-to-analysis adaptation
+↓
+rigorous comparison with conventional DA
+↓
+identify where learned methods provide demonstrable benefit
+↓
+incrementally integrate useful capabilities into operational DA systems</div>
+
+    <p>Potential longer-term areas include learned observation representations, observation-to-grid encoding, nonlinear observation influence, adaptive use of sparse observations, learned observation uncertainty, learned analysis increments, hybrid physical/latent states, and interaction with variational or ensemble DA.</p>
+  </section>
+
+  <section class="card">
+    <h2>9. Assessment</h2>
+    <p>The Aardvark ecosystem remains relatively young. The strongest visible development directions are currently concentrated in the original Cambridge/Turing effort, regional operational adaptation, uncertainty-aware extensions, and engineering/reproducibility work.</p>
+    <div class="callout role">
+      <strong>Our work potentially occupies an identifiable additional direction:</strong> applying and evaluating Aardvark-derived observation-to-state methods specifically as a data-assimilation and analysis capability in realistic operational configurations.
+    </div>
+    <p>This creates a bridge between two communities that are still developing somewhat separately:</p>
+    <div class="eq">end-to-end AI weather prediction  ↔  operational data assimilation</div>
+    <p>Aardvark is particularly useful for exploring this connection because its encoder already addresses one of the central problems of DA: converting heterogeneous observations into information about a spatially complete atmospheric state.</p>
+  </section>
+
+  <section class="card">
+    <h2>References</h2>
+    <ul>
+      <li><a href="https://github.com/anna-allen/aardvark-weather-public">Aardvark Weather public repository</a></li>
+      <li><a href="https://www.turing.ac.uk/blog/project-aardvark-reimagining-ai-weather-prediction">Alan Turing Institute: Project Aardvark</a></li>
+      <li><a href="https://www.turing.ac.uk/research/research-projects/project-cumulus-strengthening-climate-services-for-sub-saharan-african-agriculture">Project Cumulus</a></li>
+      <li><a href="https://arxiv.org/abs/2608.30795">Fraunhofer HHI uncertainty-aware Aardvark work</a></li>
+      <li><a href="https://huggingface.co/OneScience-Group/Aardvark-Weather">OneScience Aardvark adaptation</a></li>
+    </ul>
+    <p class="small">Prepared as a team-facing technical review. Publicly visible activity changes rapidly; this page should be updated as additional Aardvark-derived projects appear.</p>
+  </section>
+
+  <footer>OMD AI-DA technical review</footer>
+</div>
+</body>
+</html>
